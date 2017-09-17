@@ -1,2 +1,6 @@
 ReactiveDemo/bin
 ReactiveDemo/bin/*
+ReactiveDemo/obj
+ReactiveDemo/obj/*
+.vs
+.vs/*

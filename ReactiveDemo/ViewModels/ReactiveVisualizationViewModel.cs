@@ -45,6 +45,9 @@ namespace ReactiveDemo.ViewModels
 
         public ReactiveVisualizationViewModel()
         {
+            DisplayTake = "2";
+            DisplaySkip = "1";
+
             this.WhenAnyValue(vm => vm.DisplayTake)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Select(t => ConvertToInt(t))

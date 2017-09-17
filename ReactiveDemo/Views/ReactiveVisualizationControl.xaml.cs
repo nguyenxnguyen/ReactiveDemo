@@ -48,10 +48,12 @@ namespace ReactiveDemo.Views
         public ReactiveVisualizationControl()
         {
             InitializeComponent();
+            ViewModel = new ReactiveVisualizationViewModel();
             MyDict = new Dictionary<int, MyCircle>();
             Elements = new List<int>();
 
             var myApp = ((App)Application.Current);
+
             myApp.DrawBallEventSpotted
                 .Where(tup => Elements.Contains(tup.Item1))
                 .Subscribe(tup =>
@@ -68,8 +70,8 @@ namespace ReactiveDemo.Views
 
             this.WhenActivated(d =>
             {
-                this.Bind(ViewModel, vm => vm.DisplayTake, v => v.TakeTextBox).DisposeWith(d);
-                this.Bind(ViewModel, vm => vm.DisplaySkip, v => v.SkipTextBox).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.DisplayTake, v => v.TakeTextBox.Text).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.DisplaySkip, v => v.SkipTextBox.Text).DisposeWith(d);
 
                 this.WhenAnyValue(v => v.ViewModel.Take, v => v.ViewModel.Skip)
                 .Where(ts => ts.Item1 != 0 && ts.Item2 != 0)
@@ -88,7 +90,8 @@ namespace ReactiveDemo.Views
 
         private void GetElements(int take, int skip)
         {
-            for(int i = 0; i <= 10; i += skip)
+            Elements = new List<int>();
+            for (int i = 1; i <= 10; i += skip)
             {
                 Elements.Add(i);
                 if (Elements.Count() == take)
