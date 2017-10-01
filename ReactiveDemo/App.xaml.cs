@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReactiveDemo.Models;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -13,7 +14,6 @@ namespace ReactiveDemo
     /// </summary>
     public partial class App : Application
     {
-        public IObservable<Tuple<int, int>> DrawBallEventSpotted;
-        public IObservable<int> EraseBallEventSpotted;
+        public Observables MyObservables = new Observables();
     }
 }

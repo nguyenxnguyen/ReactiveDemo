@@ -77,6 +77,8 @@
     </ApplicationDefinition>
     <Compile Include="Models\MyClasses.cs" />
     <Compile Include="Models\MyShapes.cs" />
+    <Compile Include="Models\Observables.cs" />
+    <Compile Include="ViewModels\DataStreamVisualizationViewModel.cs" />
     <Compile Include="ViewModels\ReactiveVisualizationViewModel.cs" />
     <Compile Include="Views\DataStreamVisualizationControl.xaml.cs">
       <DependentUpon>DataStreamVisualizationControl.xaml</DependentUpon>

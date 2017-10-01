@@ -60,8 +60,7 @@
                 Content="Run"
                 HorizontalContentAlignment="Center"
                 HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Click="ButtonRunClick"/>
+                VerticalAlignment="Center"/>
             <Button
                 Name="stopButton"
                 Height="40"
@@ -70,8 +69,7 @@
                 Content="Stop"
                 HorizontalContentAlignment="Center"
                 HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Click="ButtonStopClick"/>
+                VerticalAlignment="Center"/>
         </StackPanel>
     </Grid>
 </UserControl>

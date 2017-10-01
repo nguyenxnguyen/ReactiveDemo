@@ -1,22 +1,12 @@
-﻿using ReactiveDemo.Models;
+﻿using ReactiveDemo.ViewModels;
 using ReactiveUI;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using static ReactiveDemo.Models.MyShapes;
 
 namespace ReactiveDemo.Views
@@ -24,8 +14,23 @@ namespace ReactiveDemo.Views
     /// <summary>
     /// Interaction logic for DataStreamVisualizationControl.xaml
     /// </summary>
-    public partial class DataStreamVisualizationControl : UserControl
+    public partial class DataStreamVisualizationControl : IViewFor<DataStreamVisualizationViewModel>
     {
+        public static readonly DependencyProperty _viewModel =
+               DependencyProperty.Register("ViewModel", typeof(DataStreamVisualizationViewModel), typeof(DataStreamVisualizationControl));
+
+        public DataStreamVisualizationViewModel ViewModel
+        {
+            get { return GetValue(_viewModel) as DataStreamVisualizationViewModel; }
+            set { SetValue(_viewModel, value); }
+        }
+
+        object IViewFor.ViewModel
+        {
+            get { return ViewModel; }
+            set { ViewModel = value as DataStreamVisualizationViewModel; }
+        }
+    
         public bool Stop = false;
         public const int MaxCol = 21;
 
@@ -44,65 +49,40 @@ namespace ReactiveDemo.Views
         public DataStreamVisualizationControl()
         {
             InitializeComponent();
-            var myApp = ((App)Application.Current);
-            myApp.DrawBallEventSpotted = DrawBallEventSpotted;
-            myApp.EraseBallEventSpotted = EraseBallEventSpotted;
+
+            ViewModel = new DataStreamVisualizationViewModel();
+
+            var myObservables = ((App)Application.Current).MyObservables;
+            myObservables.DrawBallEventSpotted = DrawBallEventSpotted;
+            myObservables.EraseBallEventSpotted = EraseBallEventSpotted;
+
+            this.WhenActivated(d => {
+                this.BindCommand(ViewModel, vm => vm.RunCommand, v => v.runButton).DisposeWith(d);
+                this.BindCommand(ViewModel, vm => vm.StopCommand, v => v.stopButton).DisposeWith(d);
+                this.WhenAnyValue(v => v.ViewModel.NewBall).Where(b => this.ViewModel.Running).Subscribe(DrawABall).DisposeWith(d);
+                this.WhenAnyValue(v => v.ViewModel.OldBall).Where(b => b != null).Subscribe(EraseABall).DisposeWith(d);
+            });
         }
 
-        public async Task AddAnEllipse(int number)
-        {                     
-            var circleSize = 30;
-            var circleNumber = number;
-            
-            for (int i = 0; i < MaxCol; i ++)
-            {
-                Position circlePos = new Position(i, 1);
-                MyCircle myCircle = new MyCircle(circleSize, circleNumber, circlePos);
-                // Add Ellipse to the Grid.
-                var index1 = CircleGrid.Children.Add(myCircle.Circle);
-                Grid.SetColumn(myCircle.Circle, myCircle.Position.X);
-                Grid.SetRow(myCircle.Circle, myCircle.Position.Y);
-                var index2 = CircleGrid.Children.Add(myCircle.TextInside);
-                Grid.SetColumn(myCircle.TextInside, myCircle.Position.X);
-                Grid.SetRow(myCircle.TextInside, myCircle.Position.Y);
-
-                // for observing
-                var tup = new Tuple<int, int>(number, i);
-                drawBallEventSpotted.OnNext(tup);
-
-                var td = number * 100;
-                await Task.Delay(td);
-                CircleGrid.Children.Remove(myCircle.Circle);
-                CircleGrid.Children.Remove(myCircle.TextInside);
-                eraseBallEventSpotted.OnNext(number);
-            }           
-        }
-
-        public async Task<bool> AddAnEllipseAsync()
+        private void DrawABall(MyCircle myCircle)
         {
-            List<Task> TaskList = new List<Task>();
-            for (int i = 0; i < 10; i++)
-            {
-                TaskList.Add(AddAnEllipse(i));
-            }
-            await Task.WhenAll(TaskList.ToArray());
-            return true;
+            var index1 = CircleGrid.Children.Add(myCircle.Circle);
+            Grid.SetColumn(myCircle.Circle, myCircle.Position.X);
+            Grid.SetRow(myCircle.Circle, myCircle.Position.Y);
+            var index2 = CircleGrid.Children.Add(myCircle.TextInside);
+            Grid.SetColumn(myCircle.TextInside, myCircle.Position.X);
+            Grid.SetRow(myCircle.TextInside, myCircle.Position.Y);
+            // for observing
+            var tup = new Tuple<int, int>(myCircle.Number, myCircle.Position.X);
+            drawBallEventSpotted.OnNext(tup);
         }
 
-        private async void ButtonRunClick(object sender, RoutedEventArgs e)
+        private void EraseABall(MyCircle myCircle)
         {
-            runButton.IsEnabled = false;
-            Stop = false;
-            while (!Stop)
-            {
-                var i = await AddAnEllipseAsync();
-            }                       
-        }
+            CircleGrid.Children.Remove(myCircle.Circle);
+            CircleGrid.Children.Remove(myCircle.TextInside);
 
-        private void ButtonStopClick(object sender, RoutedEventArgs e)
-        {
-            Stop = true;
-            runButton.IsEnabled = true;
+            eraseBallEventSpotted.OnNext(myCircle.Number);
         }
     }
 }

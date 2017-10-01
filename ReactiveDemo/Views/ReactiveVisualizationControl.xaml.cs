@@ -5,17 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using static ReactiveDemo.Models.MyShapes;
 using static ReactiveDemo.ViewModels.ReactiveVisualizationViewModel;
 
@@ -52,16 +43,16 @@ namespace ReactiveDemo.Views
             MyDict = new Dictionary<int, MyCircle>();
             Elements = new List<int>();
 
-            var myApp = ((App)Application.Current);
+            var myObservables = ((App)Application.Current).MyObservables;
 
-            myApp.DrawBallEventSpotted
+            myObservables.DrawBallEventSpotted
                 .Where(tup => Elements.Contains(tup.Item1))
                 .Subscribe(tup =>
                 {
                     DrawABall(tup);
                 });
 
-            myApp.EraseBallEventSpotted
+            myObservables.EraseBallEventSpotted
                 .Where(number => Elements.Contains(number))
                 .Subscribe(tup =>
                 {
@@ -91,13 +82,11 @@ namespace ReactiveDemo.Views
         private void GetElements(int take, int skip)
         {
             Elements = new List<int>();
-            for (int i = 1; i <= 10; i += skip)
+            int item = 1;
+            while (Elements.Count() < take)
             {
-                Elements.Add(i);
-                if (Elements.Count() == take)
-                {
-                    break;
-                }
+                Elements.Add(item);
+                item += skip;
             }
         }
 

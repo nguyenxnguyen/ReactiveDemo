@@ -26,8 +26,8 @@ namespace ReactiveDemo.Models
 
         public class MyCircle
         {
-            private int Size;
-            private int Number;
+            public int Size;
+            public int Number;
 
             private TextBlock _textInside;
             public TextBlock TextInside
